@@ -52,7 +52,6 @@ Update `event.json` with your actual values:
   "projectArn": "arn:aws:rekognition:us-east-1:123456789:project/my-project/123456789"
 }
 ```
-```
 
 ## Usage with EventBridge
 
@@ -108,19 +107,6 @@ cron(*/30 9-17 ? * MON-FRI *)
 # Every morning at 8 AM UTC
 cron(0 8 * * ? *)
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## Support
 
 For issues or questions, review:
