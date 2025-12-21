@@ -1,0 +1,4 @@
+{
+  "modelArn": "arn:aws:rekognition:us-east-1:123456789:project/my-project/version/my-project.2025-12-08T08.23.04/123456789",
+  "projectArn": "arn:aws:rekognition:us-east-1:123456789:project/my-project/123456789"
+}

@@ -1,0 +1,11 @@
+# Docker-specific entries for .gitignore
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Docker build artifacts
+docker-build/
+.docker/
+
+# Container files
+container-logs/
