@@ -42,39 +42,6 @@ docker logs -f rekognition-monitor
 docker stop rekognition-monitor
 ```
 
-## Docker Architecture
-
-### Dockerfile Explanation
-
-The Dockerfile uses a two-stage build process:
-
-1. **Builder Stage** (`golang:1.21-alpine`):
-   - Compiles the Go source code
-   - Creates the bootstrap binary for AWS Lambda
-   - Optimized for size and build speed
-
-2. **Runtime Stage** (`public.ecr.aws/lambda/provided.al2`):
-   - Uses official AWS Lambda runtime image
-   - Includes all necessary Lambda runtime components
-   - Copies the compiled binary
-   - Minimal attack surface
-
-```dockerfile
-# Stage 1: Build
-FROM golang:1.21-alpine AS builder
-WORKDIR /app
-COPY go.mod go.sum ./
-RUN go mod download
-COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o bootstrap main.go
-
-# Stage 2: Runtime
-FROM public.ecr.aws/lambda/provided.al2:latest
-COPY --from=builder /app/bootstrap ${LAMBDA_TASK_ROOT}/
-RUN chmod +x ${LAMBDA_TASK_ROOT}/bootstrap
-CMD [ "bootstrap" ]
-```
-
 ## AWS Credentials in Docker
 
 ### Option 1: Using AWS Credentials File (Recommended)
@@ -111,19 +78,6 @@ docker run -d \
   --env-file .env.production \
   rekognition-monitor:latest
 ```
-
-## Testing the Container
-
-### Using docker-test.sh
-
-```bash
-./docker-test.sh
-```
-
-This script:
-1. Checks if the container is running
-2. Sends the event.json payload to the Lambda endpoint
-3. Displays the response
 
 ### Manual Testing with curl
 
