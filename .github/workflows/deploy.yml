@@ -57,8 +57,20 @@ jobs:
     
     - name: Test Lambda function
       run: |
+        # Create payload file
+        cat > payload.json << EOF
+        {
+          "modelArn": "${{ secrets.MODEL_ARN }}",
+          "projectArn": "${{ secrets.PROJECT_ARN }}"
+        }
+        EOF
+        
+        # Show what we're sending
+        echo "Payload:"
+        cat payload.json
+
         aws lambda invoke \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-          --payload "{\"modelArn\": \"${{ secrets.MODEL_ARN }}\", \"projectArn\": \"${{ secrets.PROJECT_ARN }}\"}" \
+          --payload file://payload.json \
           response.json
         cat response.json
