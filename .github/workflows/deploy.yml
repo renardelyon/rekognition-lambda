@@ -1,0 +1,60 @@
+name: Deploy to AWS Lambda
+on:
+  push:
+    branches:
+      - master
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: ingredients-recognition-app-lambda
+  LAMBDA_FUNCTION_NAME: ingredients-recognition-app
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@0e613a0980cbf65ed5b322eb7a1e075d28913a83
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+        ECR_REPOSITORY: ingredients-recognition-app-lambda
+      run: |
+        docker buildx build --platform linux/amd64 --provenance=false -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+    - name: Deploy Lambda function with container image
+      uses: aws-actions/aws-lambda-deploy@v1.1.0
+      with:
+        function-name: ${{ env.LAMBDA_FUNCTION_NAME }}
+        package-type: Image
+        image-uri: ${{ steps.build-image.outputs.image }}
+        role: arn:aws:iam::123456789012:role/lambda-role  # IAM execution role for Lambda
+    
+    - name: Test Lambda function
+      run: |
+        aws lambda invoke \
+          --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+          --payload '{ \
+            "modelArn": "${{ secrets.MODEL_ARN }}", \
+            "projectArn": "${{ secrets.PROJECT_ARN }}" \
+          }' \
+          response.json
+        cat response.json
