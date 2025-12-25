@@ -53,7 +53,7 @@ jobs:
         function-name: ${{ env.LAMBDA_FUNCTION_NAME }}
         package-type: Image
         image-uri: ${{ steps.build-image.outputs.image }}
-        role: arn:aws:iam::123456789012:role/lambda-role  # IAM execution role for Lambda
+        role: ${{ secrets.LAMBDA_ROLE_ARN }}  # IAM execution role for Lambda
     
     - name: Test Lambda function
       run: |
