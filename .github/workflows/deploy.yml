@@ -73,4 +73,3 @@ jobs:
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
           --payload file://payload.json \
           response.json
-        cat response.json
