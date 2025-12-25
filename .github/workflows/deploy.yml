@@ -15,6 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
 
+     # ADD THIS BLOCK - it's missing!
+    permissions:
+      id-token: write   # Required for OIDC authentication
+      contents: read    # Required to checkout code
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v5
