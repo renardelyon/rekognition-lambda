@@ -22,10 +22,10 @@ RUN CGO_ENABLED=0 GOOS=linux go build -tags lambda.norpc -o bootstrap main.go
 FROM public.ecr.aws/lambda/provided:al2023
 
 # Copy the compiled binary from the builder stage
-COPY --from=builder /app/bootstrap ${LAMBDA_TASK_ROOT}/
+COPY --from=builder /app/bootstrap ${LAMBDA_RUNTIME_DIR}/
 
 # Make the binary executable
-RUN chmod +x ${LAMBDA_TASK_ROOT}/bootstrap
+RUN chmod +x ${LAMBDA_RUNTIME_DIR}/bootstrap
 
 # Set the CMD to the Lambda handler
 CMD [ "bootstrap" ]
